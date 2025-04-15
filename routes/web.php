@@ -44,6 +44,7 @@ Route::middleware(['auth', CekRole::class . ':admin,employe'])
                 route::post('sale/add/post/member/{id}', [SaleController::class, 'CreateSaleMemberPost'])->name('sale.member.post');
                 Route::get('/sales/export', [ExportController::class, 'exportExcel'])->name('sale.export');
                 Route::get('/export/pdf/{id}', [ExportController::class, 'ExportPDF'])->name('sale.export.pdf');
+                Route::get('/users/export', [ExportController::class, 'exportUsersExcel'])->name('users.export');
             },
         );
     });

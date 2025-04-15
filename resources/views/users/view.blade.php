@@ -16,6 +16,16 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-content-end">
+            <div class="col text-end">
+                <a href="{{ route('user.add') }}" class="btn btn-primary">
+                    Tambah User
+                </a>
+                <a href="{{ route('users.export') }}" class="btn btn-success">
+                    Export Excel
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             <div class="row justify-content-end">
                 <div class="col text-end">

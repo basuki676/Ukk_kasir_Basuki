@@ -70,7 +70,7 @@
                                 href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
                                 <p class="p-4 pb-2 ">{{ auth()->user()->name }}</p>
-                                <img src="../assets/images/users/profile.png" alt="user" class="rounded-circle"
+                                <img src={{ asset('assets/images/users/profile.png') }} alt="user" class="rounded-circle"
                                     width="31">
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end user-dd animated"

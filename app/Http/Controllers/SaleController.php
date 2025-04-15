@@ -178,47 +178,48 @@ class SaleController extends Controller
     }
 
     public function CreateSaleMemberPost(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required',
-            'points_to_use' => 'nullable|integer|min:0',
-        ]);
+{
+    $request->validate([
+        'name' => 'required',
+        'points_to_use' => 'nullable|integer|min:0',
+    ]);
 
-        $sale = Sale::findOrFail($id);
-        $customer = $sale->customer;
+    $sale = Sale::findOrFail($id);
+    $customer = $sale->customer;
 
-        $selectedProducts = session('selected_products', []);
-        $totalPrice = array_reduce(
-            $selectedProducts,
-            function ($carry, $product) {
-                $data = explode(';', $product);
-                return $carry + $data[2] * $data[3];
-            },
-            0,
-        );
+    $selectedProducts = session('selected_products', []);
+    $totalPrice = array_reduce(
+        $selectedProducts,
+        function ($carry, $product) {
+            $data = explode(';', $product);
+            return $carry + $data[2] * $data[3];
+        },
+        0,
+    );
 
-        $pointsUsed = 0;
-        if ($request->has('check_poin') && $request->check_poin == 'Ya') {
-            $pointsUsed = min($request->points_to_use, $customer->point);
-            $totalPrice = max($totalPrice - $pointsUsed, 0);
-        }
+    // Calculate points earned from ORIGINAL total price (before any discounts)
+    $pointsEarned = floor($totalPrice * 0.01);
 
-        $pointsEarned = floor($totalPrice * 0.01);
-
-        // Update customer
-        $customer->update([
-            'name' => $request->name,
-            'point' => $customer->point - $pointsUsed + $pointsEarned,
-        ]);
-
-        // Update sale
-        $sale->update([
-            'total_price' => $totalPrice,
-            'total_return' => $sale->total_pay - $totalPrice,
-            'poin' => $pointsUsed,
-            'total_poin' => $customer->point,
-        ]);
-
-        return redirect()->route('sale.invoice', $sale->id)->with('success', 'Transaksi berhasil diproses!');
+    $pointsUsed = 0;
+    if ($request->has('check_poin') && $request->check_poin == 'Ya' && $customer->point > 0) {
+        $pointsUsed = min($request->points_to_use, $customer->point);
+        $totalPrice = max($totalPrice - $pointsUsed, 0);
     }
+
+    // Update customer
+    $customer->update([
+        'name' => $request->name,
+        'point' => $customer->point - $pointsUsed + $pointsEarned,
+    ]);
+
+    // Update sale
+    $sale->update([
+        'total_price' => $totalPrice,
+        'total_return' => $sale->total_pay - $totalPrice,
+        'poin' => $pointsUsed,
+        'total_poin' => $customer->point,
+    ]);
+
+    return redirect()->route('sale.invoice', $sale->id)->with('success', 'Transaksi berhasil diproses!');
+}
 }

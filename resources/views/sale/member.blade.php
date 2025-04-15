@@ -92,44 +92,44 @@
                                     </div>
 
                                     <!-- Member Form Column -->
-                                    <div class="col-lg-6 col-md-12">
-                                        <input type="hidden" name="sale_id" value="{{ $sale->id }}">
-                                        @if ($sale->customer)
-                                            <input type="hidden" name="customer_id" value="{{ $sale->customer->id }}">
-                                            <input type="hidden" id="current_points" value="{{ $currentPoints }}">
-                                        @endif
+<div class="col-lg-6 col-md-12">
+    <input type="hidden" name="sale_id" value="{{ $sale->id }}">
+    @if ($sale->customer)
+        <input type="hidden" name="customer_id" value="{{ $sale->customer->id }}">
+        <input type="hidden" id="current_points" value="{{ $currentPoints }}">
+    @endif
 
-                                        <div class="form-group mb-3">
-                                            <label for="name" class="form-label">Nama Member</label>
-                                            <input type="text" class="form-control" name="name"
-                                                value="{{ old('name', $sale->customer ? $sale->customer->name : '') }}"
-                                                required>
-                                        </div>
+    <div class="form-group mb-3">
+        <label for="name" class="form-label">Nama Member</label>
+        <input type="text" class="form-control" name="name"
+            value="{{ old('name', $sale->customer ? $sale->customer->name : '') }}"
+            required>
+    </div>
 
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Poin Saat Ini</label>
-                                            <input type="text" class="form-control" value="{{ $currentPoints }}"
-                                                disabled>
-                                        </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Poin Saat Ini</label>
+        <input type="text" class="form-control" value="{{ $currentPoints }}"
+            disabled>
+    </div>
 
+    @if($currentPoints > 0) {{-- Only show points options if member has points --}}
+    <div class="form-check mb-3">
+        <input type="checkbox" name="check_poin" value="Ya" id="check_poin"
+            class="form-check-input">
+        <label for="check_poin" class="form-check-label">Gunakan Semua Poin</label>
+    </div>
 
+    <div class="form-group mb-3" id="point_use_container" style="display: none;">
+        <label for="points_to_use" class="form-label">Jumlah Poin Digunakan</label>
+        <input type="number" name="points_to_use" id="points_to_use"
+            class="form-control" readonly>
+    </div>
+    @endif
 
-                                        <div class="form-check mb-3">
-                                            <input type="checkbox" name="check_poin" value="Ya" id="check_poin"
-                                                class="form-check-input">
-                                            <label for="check_poin" class="form-check-label">Gunakan Semua Poin</label>
-                                        </div>
-
-                                        <div class="form-group mb-3" id="point_use_container" style="display: none;">
-                                            <label for="points_to_use" class="form-label">Jumlah Poin Digunakan</label>
-                                            <input type="number" name="points_to_use" id="points_to_use"
-                                                class="form-control" readonly>
-                                        </div>
-
-                                        <div class="text-end mt-4">
-                                            <button type="submit" class="btn btn-primary">Proses Transaksi</button>
-                                        </div>
-                                    </div>
+    <div class="text-end mt-4">
+        <button type="submit" class="btn btn-primary">Proses Transaksi</button>
+    </div>
+</div>
                                 </div>
                             </form>
                         </div>
@@ -141,41 +141,49 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const checkBox = document.getElementById('check_poin');
-            const pointContainer = document.getElementById('point_use_container');
-            const pointsInput = document.getElementById('points_to_use');
-            const currentPoints = {{ $currentPoints }};
-            const initialPrice = {{ $totalHarga }};
+    const checkBox = document.getElementById('check_poin');
+    const pointContainer = document.getElementById('point_use_container');
+    const pointsInput = document.getElementById('points_to_use');
+    const currentPoints = {{ $currentPoints }};
+    const initialPrice = {{ $totalHarga }};
 
-            function updatePriceDisplay() {
-                let pointsUsed = checkBox.checked ? currentPoints : 0;
-                pointsInput.value = pointsUsed;
+    // Always calculate points from original price
+    const pointsEarned = Math.floor(initialPrice * 0.01);
+    document.getElementById('points-earned-display').textContent = pointsEarned;
 
-                const discount = pointsUsed; // Perubahan di sini (tidak dikali 100)
-                const finalPrice = Math.max(initialPrice - discount, 0);
-                const pointsEarned = Math.floor(finalPrice * 0.01);
+    function updatePriceDisplay() {
+        let pointsUsed = checkBox && checkBox.checked ? currentPoints : 0;
+        if(pointsInput) pointsInput.value = pointsUsed;
 
-                // Update tampilan
-                document.getElementById('discount-amount').textContent = `-Rp ${discount.toLocaleString('id-ID')}`;
-                document.getElementById('total-price-display').textContent =
-                    `Rp ${finalPrice.toLocaleString('id-ID')}`;
-                document.getElementById('points-earned-display').textContent = pointsEarned;
+        const discount = pointsUsed;
+        const finalPrice = Math.max(initialPrice - discount, 0);
 
-                // Toggle discount row visibility
-                document.getElementById('discount-row').style.display = discount > 0 ? 'table-row' : 'none';
-            }
+        // Update display
+        document.getElementById('discount-amount').textContent = `-Rp ${discount.toLocaleString('id-ID')}`;
+        document.getElementById('total-price-display').textContent =
+            `Rp ${finalPrice.toLocaleString('id-ID')}`;
 
-            // Initialize
-            if (checkBox.checked) {
-                pointContainer.style.display = 'block';
-                updatePriceDisplay();
-            }
+        // Toggle discount row visibility
+        if(discount > 0) {
+            document.getElementById('discount-row').style.display = 'table-row';
+        } else {
+            document.getElementById('discount-row').style.display = 'none';
+        }
+    }
 
-            // Event listener
-            checkBox.addEventListener('change', function() {
-                pointContainer.style.display = this.checked ? 'block' : 'none';
-                updatePriceDisplay();
-            });
+    // Initialize only if checkbox exists
+    if(checkBox) {
+        if(checkBox.checked) {
+            pointContainer.style.display = 'block';
+            updatePriceDisplay();
+        }
+
+        // Event listener
+        checkBox.addEventListener('change', function() {
+            pointContainer.style.display = this.checked ? 'block' : 'none';
+            updatePriceDisplay();
         });
+    }
+});
     </script>
 @endsection
