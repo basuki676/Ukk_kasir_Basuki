@@ -68,14 +68,14 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end user-dd animated" aria-labelledby="navbarDropdown">
                                 <div class="dropdown-divider"></div>
-                                <form action="#" method="POST" class="px-3">
+                                <form action="{{ route('logout') }}" method="POST" class="px-3">
                                     @csrf
                                     <button type="submit" class="dropdown-item text-danger"><i class="ti-power-off m-r-5 m-l-5"></i> Logout</button>
                                 </form>
                             </ul>
                         </li>
                     </ul>
-                    
+
                 </div>
             </nav>
         </header>
@@ -85,51 +85,51 @@
                 <!-- Sidebar navigation-->
                 <nav class="sidebar-nav">
                     <ul id="sidebarnav">
-                        
+                        @if(auth()->user()->role == 'admin')
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href="#" aria-expanded="false">
+                                href="{{ route('dashboard.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-view-dashboard"></i>
                                 <span class="hide-menu">Dashboard</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href="#" aria-expanded="false">
+                                href="{{ route('product.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-store"></i>
                                 <span class="hide-menu">Product Data</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="#" aria-expanded="false">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('sale.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-cart"></i>
                                 <span class="hide-menu">Pembelian</span>
                             </a>
                         </li>
                         <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="#" aria-expanded="false"><i class="mdi mdi-account-network"></i><span
+                            href="{{ route('users.view') }}" aria-expanded="false"><i class="mdi mdi-account-network"></i><span
                                 class="hide-menu">Users Data</span></a></li>
-                        
+                        @elseif(auth()->user()->role == 'employe')
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href="#" aria-expanded="false">
+                                href="{{ route('dashboard.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-view-dashboard"></i>
                                 <span class="hide-menu">Dashboard</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="#" aria-expanded="false">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('product.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-store"></i>
                                 <span class="hide-menu">Pembelian</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="#" aria-expanded="false">
+                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('sale.view') }}" aria-expanded="false">
                                 <i class="mdi mdi-cart"></i>
                                 <span class="hide-menu">Pembelian</span>
                             </a>
                         </li>
-                    
+                        @endif
                     </ul>
                 </nav>
             </div>
@@ -149,4 +149,3 @@
 </body>
 
 </html>
-

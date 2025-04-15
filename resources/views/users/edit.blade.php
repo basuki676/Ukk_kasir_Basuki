@@ -7,23 +7,24 @@
             <div class="col-6">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0 d-flex align-items-center">
-                      <li class="breadcrumb-item"><a href="#" class="link"><i class="mdi mdi-home-outline fs-4"></i></a></li>
+                      <li class="breadcrumb-item"><a href="{{ route('dashboard.view') }}" class="link"><i class="mdi mdi-home-outline fs-4"></i></a></li>
                       <li class="breadcrumb-item active" aria-current="page">Edit User</li>
                     </ol>
                   </nav>
-                <h1 class="mb-0 fw-bold">Edit User</h1> 
+                <h1 class="mb-0 fw-bold">Edit User</h1>
             </div>
         </div>
     </div>
     <div class="card-body">
         <form class="form-horizontal form-material mx-2" method="POST"
-            action="#">
+            action="{{ route('user.update', $users->id) }}">
+            @csrf
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="col-md-12">Email <span class="text-danger">*</span></label>
                         <div class="col-md-12">
-                            <input type="email" name="email" class="form-control form-control-line" value="#">
+                            <input type="email" name="email" class="form-control form-control-line" value="{{ $users->email }}">
                         </div>
                     </div>
                 </div>
@@ -31,7 +32,7 @@
                     <div class="form-group">
                         <label class="col-md-12">Nama <span class="text-danger">*</span></label>
                         <div class="col-md-12">
-                            <input type="text" name="name" class="form-control form-control-line" value="#">
+                            <input type="text" name="name" class="form-control form-control-line" value="{{ $users->name }}">
                         </div>
                     </div>
                 </div>
@@ -52,7 +53,7 @@
                     <div class="form-group">
                         <label class="col-md-12">Password <span class="text-danger">*</span></label>
                         <div class="col-md-12">
-                            <input type="text" name="password" class="form-control form-control-line" value="#">
+                            <input type="text" name="password" class="form-control form-control-line" value="{{ $users->password }}">
                         </div>
                     </div>
                 </div>
