@@ -13,20 +13,26 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
 {
     public function collection()
     {
-        return Sale::all()->map(function ($sale) {
+        return Sale::with(['customer', 'user', 'detailSales.product'])->get()->map(function ($sale) {
+            $produkList = $sale->detailSales->map(function ($detail) {
+                $hargaSatuan = $detail->amount > 0 ? $detail->sub_total / $detail->amount : 0;
+                return $detail->product->name . ' x' . $detail->amount . ' Rp' . number_format($hargaSatuan, 0, ',', '.');
+            })->implode(', ');
+
             return [
                 'ID' => $sale->id,
                 'Pelanggan' => $sale->customer ? $sale->customer->name : 'Non Member',
                 'Tanggal' => $sale->created_at->format('Y-m-d'),
                 'Total Harga' => 'Rp ' . number_format($sale->total_price, 0, ',', '.'),
                 'Kasir' => $sale->user->name,
+                'Produk Dibeli' => $produkList,
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['ID', 'Pelanggan', 'Tanggal', 'Total Harga', 'Kasir'];
+        return ['ID', 'Pelanggan', 'Tanggal', 'Total Harga', 'Kasir', 'Produk Dibeli'];
     }
 
     public function startCell(): string
@@ -38,10 +44,8 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                // Gabungkan kolom A sampai E untuk baris 1
-                $event->sheet->mergeCells('A1:E1');
-
-                // Tulis nama toko di sel gabungan
+                // Gabungkan A1 sampai F1 untuk judul toko
+                $event->sheet->mergeCells('A1:N1');
                 $event->sheet->setCellValue('A1', 'FlexyLite');
 
                 // Styling judul toko
