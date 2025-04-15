@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\CekRole;
 
-
 Route::middleware('guest')
     ->prefix('auth')
     ->group(function () {
@@ -49,14 +48,15 @@ Route::middleware(['auth', CekRole::class . ':admin,employe'])
         );
     });
 
-Route::middleware(['auth', CekRole::class . ':admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', CekRole::class . ':admin'])
+    ->prefix('admin')
+    ->group(function () {
         Route::prefix('product')->group(function () {
             Route::get('/add', [ProductController::class, 'AddData'])->name('product.add');
             Route::post('/create', [ProductController::class, 'CreateData'])->name('product.create');
             Route::get('/edit/{id}', [ProductController::class, 'EditData'])->name('product.edit');
             Route::post('/update/{id}', [ProductController::class, 'UpdateData'])->name('product.update');
             Route::delete('/delete/{id}', [ProductController::class, 'DeleteData'])->name('product.delete');
-            Route::get('/product/update-stock/view/{id}', [ProductController::class, 'editStock'])->name('product.editStock');
             Route::patch('/product/update-stock/{id}', [ProductController::class, 'updateStock'])->name('product.updateStock');
         });
         Route::get('/users', [UsersController::class, 'ViewUsers'])->name('users.view');

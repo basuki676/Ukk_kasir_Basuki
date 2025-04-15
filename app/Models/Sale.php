@@ -11,15 +11,7 @@ class Sale extends Model
 
     // protected $table = 'sale';
 
-    protected $fillable = [
-        'total_price',
-        'total_pay',
-        'total_return',
-        'customer_id',
-        'user_id',
-        'poin',
-        'total_poin',
-    ];
+    protected $fillable = ['total_price', 'total_pay', 'total_return', 'customer_id', 'user_id', 'poin', 'total_poin'];
     public function user()
     {
         return $this->belongsTo(User::class);

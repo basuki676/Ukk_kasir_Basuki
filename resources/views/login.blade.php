@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.css') }}">
 </head>
+
 <body>
 
     <div class="text-center">
@@ -25,7 +27,7 @@
                             <button class="btn btn-primary">Login</button>
                         </form>
 
-                        @if(session('error'))
+                        @if (session('error'))
                             <p class="text-danger">{{ session('error') }}</p>
                         @endif
                     </div>
@@ -35,4 +37,5 @@
     </div>
 
 </body>
+
 </html>

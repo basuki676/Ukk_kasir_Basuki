@@ -24,7 +24,7 @@ class Product extends Model
             'product_id', // Foreign key on DetailSale table
             'id', // Foreign key on Sale table
             'id', // Local key on Product table
-            'sale_id' // Local key on DetailSale table
+            'sale_id', // Local key on DetailSale table
         );
     }
 }
