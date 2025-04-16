@@ -14,8 +14,9 @@
         $totalBayar = $sale->total_pay;
         $kembalian = $totalBayar - $totalHarga;
 
-        // Calculate points earned (1% of final price)
-        $pointsEarned;
+        // Check if customer is member
+        $isMember = !is_null($sale->customer);
+        $pointsEarned = $isMember ? floor($totalHarga * 0.01) : 0;
     @endphp
 
     <div class="page-wrapper">
@@ -30,8 +31,8 @@
                                 </a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">Penjualan</li>
-                            <li class="breadcrumb-item active" aria-current="page">Plilih Produk</li>
-                            <li class="breadcrumb-item active" aria-current="page">Verivikasi Member</li>
+                            <li class="breadcrumb-item active" aria-current="page">Pilih Produk</li>
+                            <li class="breadcrumb-item active" aria-current="page">Verifikasi Member</li>
                             <li class="breadcrumb-item active" aria-current="page">Invoice</li>
                         </ol>
                     </nav>
@@ -45,18 +46,18 @@
                 <div class="col-xl-12">
                     <div class="card p-4">
                         <div class="card-body">
-                            <!-- Header dalam Card -->
+                            <!-- Header Section -->
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h4 class="fw-bold">Detail Penjualan</h4>
                                 </div>
-                                <div class="text-end mt-">
+                                <div class="text-end">
                                     <div><strong>Invoice - #{{ $sale->id }}</strong></div>
                                     <div>{{ $sale->created_at->format('d-M-Y') }}</div>
                                 </div>
                             </div>
 
-                            <!-- Tombol Aksi -->
+                            <!-- Action Buttons -->
                             <div class="mb-4">
                                 <a href="{{ route('sale.export.pdf', $sale->id) }}" class="btn btn-primary me-2">
                                     <i class="icon-download"></i> Unduh
@@ -66,7 +67,7 @@
                                 </a>
                             </div>
 
-                            <!-- Tabel Produk -->
+                            <!-- Products Table -->
                             <div class="table-responsive mb-4">
                                 <table class="table custom-table m-0">
                                     <thead>
@@ -93,55 +94,61 @@
                                 </table>
                             </div>
 
-                            <!-- Rangkuman Total -->
+                            <!-- Summary Section -->
                             <div class="card bg-light p-3">
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <small class="text-muted">POIN DIGUNAKAN</small>
-                                        <div class="fw-bold">{{ $sale->poin }} Poin (Rp.
-                                            {{ number_format($sale->poin, 0, ',', '.') }})</div>
-                                    </div>
+                                    <!-- Cashier Info (always shown) -->
                                     <div class="col-md-6 mb-3">
                                         <small class="text-muted">KASIR</small>
                                         <div class="fw-bold">{{ $sale->user->name }}</div>
                                     </div>
+
+                                    <!-- Payment Info (always shown) -->
                                     <div class="col-md-6 mb-3">
-                                        <small class="text-muted">POIN DIDAPAT</small>
-                                        <div class="fw-bold">{{ $pointsEarned }} Poin</div>
+                                        <small class="text-muted">TOTAL HARGA AWAL</small>
+                                        <div class="fw-bold">Rp. {{ number_format($totalHargaAwal, 0, ',', '.') }}</div>
                                     </div>
+
+                                    <!-- Points Section (only for members) -->
+                                    @if($isMember)
+                                        @if($sale->poin > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted">POIN DIGUNAKAN</small>
+                                            <div class="fw-bold">{{ $sale->poin }} Poin (Rp. {{ number_format($sale->poin, 0, ',', '.') }})</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted">POTONGAN POIN</small>
+                                            <div class="fw-bold text-danger">- Rp. {{ number_format($sale->poin, 0, ',', '.') }}</div>
+                                        </div>
+                                        @endif
+
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted">POIN DIDAPAT</small>
+                                            <div class="fw-bold">{{ $pointsEarned }} Poin</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted">TOTAL POIN SEKARANG</small>
+                                            <div class="fw-bold">{{ $sale->customer->point }} Poin</div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Payment Summary (always shown) -->
                                     <div class="col-md-6 mb-3">
-                                        <small class="text-muted">TOTAL POIN SEKARANG</small>
-                                        <div class="fw-bold">{{ $sale->customer ? $sale->customer->point : 0 }} Poin</div>
+                                        <small class="text-muted">TOTAL BAYAR</small>
+                                        <div class="fw-bold">Rp. {{ number_format($totalBayar, 0, ',', '.') }}</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <small class="text-muted">KEMBALIAN</small>
                                         <div class="fw-bold">Rp. {{ number_format(max($kembalian, 0), 0, ',', '.') }}</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <small class="text-muted">TOTAL HARGA AWAL</small>
-                                        <div class="fw-bold">Rp. {{ number_format($totalHargaAwal, 0, ',', '.') }}</div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <small class="text-muted">Total Bayar</small>
-                                        <div class="fw-bold">Rp. {{ number_format($totalBayar, 0, ',', '.') }}</div>
-                                    </div>
-                                    @if ($sale->poin > 0)
-                                        <div class="col-md-6 mb-3">
-                                            <small class="text-muted">POTONGAN POIN</small>
-                                            <div class="fw-bold text-danger">- Rp.
-                                                {{ number_format($sale->poin, 0, ',', '.') }}</div>
-                                        </div>
-                                    @endif
-                                    <div class="col-md-6 mb-3">
                                         <small class="text-muted">TOTAL HARGA AKHIR</small>
-                                        <div class="fw-bold text-success fs-5">Rp.
-                                            {{ number_format($totalHarga, 0, ',', '.') }}</div>
+                                        <div class="fw-bold text-success fs-5">Rp. {{ number_format($totalHarga, 0, ',', '.') }}</div>
                                     </div>
                                 </div>
                             </div>
-
-                        </div> <!-- end card-body -->
-                    </div> <!-- end card -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
