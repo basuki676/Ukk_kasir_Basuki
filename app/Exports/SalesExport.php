@@ -22,23 +22,17 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
                 $hargaSatuan = $detail->amount > 0 ? $detail->sub_total / $detail->amount : 0;
                 $totalHarga = $hargaSatuan * $detail->amount;
                 
-                $productText = sprintf(
-                    "%s\nRp %s x%d = Rp %s",
-                    $detail->product->name,
-                    number_format($hargaSatuan, 0, ',', '.'),
-                    $detail->amount,
-                    number_format($totalHarga, 0, ',', '.')
-                );
-                
                 if ($firstProduct) {
                     // First product - add all sale info
                     $salesData[] = [
                         'ID' => $sale->id,
                         'Pelanggan' => $sale->customer ? $sale->customer->name : 'Non Member',
-                        'Tanggal' => $sale->created_at->format('Y-m-d'),
+                        'Tanggal' => $sale->created_at->format('Y-m-d H:i'),
                         'Total Harga' => 'Rp ' . number_format($sale->total_price, 0, ',', '.'),
                         'Kasir' => $sale->user->name,
-                        'Produk Dibeli' => $productText,
+                        'Produk' => $detail->product->name,
+                        'Qty' => $detail->amount,
+                        'Harga Satuan' => 'Rp ' . number_format($hargaSatuan, 0, ',', '.'),
                     ];
                     $firstProduct = false;
                 } else {
@@ -49,7 +43,9 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
                         'Tanggal' => '',
                         'Total Harga' => '',
                         'Kasir' => '',
-                        'Produk Dibeli' => $productText,
+                        'Produk' => $detail->product->name,
+                        'Qty' => $detail->amount,
+                        'Harga Satuan' => 'Rp ' . number_format($hargaSatuan, 0, ',', '.'),
                     ];
                 }
             }
@@ -59,10 +55,13 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
                 $salesData[] = [
                     'ID' => $sale->id,
                     'Pelanggan' => $sale->customer ? $sale->customer->name : 'Non Member',
-                    'Tanggal' => $sale->created_at->format('Y-m-d'),
+                    'Tanggal' => $sale->created_at->format('Y-m-d H:i'),
                     'Total Harga' => 'Rp ' . number_format($sale->total_price, 0, ',', '.'),
                     'Kasir' => $sale->user->name,
-                    'Produk Dibeli' => '',
+                    'Produk' => '',
+                    'Qty' => '',
+                    'Harga Satuan' => '',
+                    
                 ];
             }
         });
@@ -72,7 +71,7 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
 
     public function headings(): array
     {
-        return ['ID', 'Pelanggan', 'Tanggal', 'Total Harga', 'Kasir', 'Produk Dibeli'];
+        return ['ID', 'Pelanggan', 'Tanggal', 'Total Harga', 'Kasir', 'Produk', 'Qty', 'Harga Satuan',];
     }
 
     public function startCell(): string
@@ -85,7 +84,7 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 // Merge cells for store title
-                $event->sheet->mergeCells('A1:F1');
+                $event->sheet->mergeCells('A1:H1');
                 $event->sheet->setCellValue('A1', 'BASS Store');
 
                 // Style store title
@@ -100,33 +99,29 @@ class SalesExport implements FromCollection, WithHeadings, WithCustomStartCell, 
                     ],
                 ]);
                 
-                // Set wrap text and alignment for product cells
-                $event->sheet->getStyle('F2:F' . ($event->sheet->getHighestRow()))
-                    ->applyFromArray([
-                        'alignment' => [
-                            'wrapText' => true,
-                            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP,
-                        ]
-                    ]);
+                // Style header row
+                $event->sheet->getStyle('A2:H2')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFD9D9D9',
+                        ],
+                    ],
+                ]);
                 
                 // Auto size columns
-                $columns = ['A', 'B', 'C', 'D', 'E', 'F'];
+                $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
                 foreach ($columns as $column) {
                     $event->sheet->getColumnDimension($column)->setAutoSize(true);
                 }
                 
-                // Set borders for all cells
-                $event->sheet->getStyle('A2:F' . ($event->sheet->getHighestRow()))
-                    ->applyFromArray([
-                        'borders' => [
-                            'allBorders' => [
-                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                            ],
-                        ],
-                    ]);
-                
-                // Set specific width for product column
-                $event->sheet->getColumnDimension('F')->setWidth(30);
+                // Set specific widths for certain columns if needed
+                $event->sheet->getColumnDimension('F')->setWidth(25); // Produk
+                $event->sheet->getColumnDimension('G')->setWidth(10); // Qty
+                $event->sheet->getColumnDimension('H')->setWidth(15); // Harga Satuan
             },
         ];
     }

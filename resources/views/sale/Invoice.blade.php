@@ -15,7 +15,7 @@
         $kembalian = $totalBayar - $totalHarga;
 
         // Calculate points earned (1% of final price)
-        $pointsEarned = floor($totalHarga * 0.01);
+        $pointsEarned;
     @endphp
 
     <div class="page-wrapper">

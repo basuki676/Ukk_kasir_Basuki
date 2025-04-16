@@ -125,22 +125,29 @@ class SaleController extends Controller
     public function ViewInvoice($id)
     {
         $sale = Sale::find($id);
-
+    
         $selectedProductsData = session('selected_products', []);
         $selectedProducts = [];
-
+        $totalHargaAwal = 0;
+    
         foreach ($selectedProductsData as $productData) {
             $data = explode(';', $productData);
+            $subTotal = $data[2] * $data[3];
+            $totalHargaAwal += $subTotal;
+            
             $selectedProducts[] = [
                 'id' => $data[0],
                 'name' => $data[1],
                 'price' => $data[2],
                 'quantity' => $data[3],
-                'total' => $data[4],
+                'total' => $subTotal,
             ];
         }
-
-        return view('sale.invoice', compact('sale', 'selectedProducts'));
+    
+        // Hitung poin dari total harga awal (1%)
+        $pointsEarned = floor($totalHargaAwal * 0.01);
+    
+        return view('sale.invoice', compact('sale', 'selectedProducts', 'totalHargaAwal', 'pointsEarned'));
     }
 
     public function CreateSaleMember($id)
